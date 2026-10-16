@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="360" viewBox="0 0 480 360">
+  <rect width="480" height="360" fill="#7795c2"/>
+  <circle cx="292" cy="112" r="65" fill="#2d56a0"/>
+  <path d="M154 360v-35c0-91 61-150 138-150s138 59 138 150v35z" fill="#2d56a0"/>
+  <text x="456" y="335" text-anchor="end" fill="#fff" font-family="sans-serif" font-size="20">SAMPLE</text>
+</svg>
