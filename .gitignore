@@ -1,0 +1,9 @@
+dist/
+node_modules/
+*.log
+.sites/
+.openai/local/
+*.zip
+*.tar.gz
+.sites-runtime/
+.sites-checkout
