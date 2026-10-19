@@ -1,15 +1,18 @@
 // 公開情報のみを記入してください。APIキーや非公開シートの認証情報は不要です。
 export default {
-  eventName: '文化祭 DJイベント',
+  eventName: 'TDU RAVE2026',
   timeZone: 'Asia/Tokyo',
   showLogoBackdrop: true,
   floors: [
-    { id: 'floor-1', name: 'FLOOR 1', twitchChannel: '' },
-    { id: 'floor-2', name: 'FLOOR 2', twitchChannel: '' },
+    { id: 'main', name: 'メインステージ', twitchChannel: 'frenzynet' },
+    { id: 'toku', name: '特設ステージ', twitchChannel: 'frenzynet2' },
+    { id: 'floor-1', name: 'testメインステージ', twitchChannel: 'frenzynet' },
+    { id: 'floor-2', name: 'test特設ステージ', twitchChannel: 'frenzynet2' },
+
   ],
   data: {
     // 接続時は useSampleData を false にし、「ウェブに公開」した各タブのCSV URLを指定。
-    useSampleData: false,
+    useSampleData: true,
     scheduleUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTsuhKbnGB5dIvfk3f50RfZaGdGuD4ltjj4hfHakajv4iNsictIRtfbobv95EKF7zXkCEVshykDu61K/pub?gid=1657895347&single=true&output=csv',
     djsUrl: 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTsuhKbnGB5dIvfk3f50RfZaGdGuD4ltjj4hfHakajv4iNsictIRtfbobv95EKF7zXkCEVshykDu61K/pub?gid=0&single=true&output=csv',
     refreshMs: 60_000,

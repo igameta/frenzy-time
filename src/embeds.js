@@ -43,5 +43,5 @@ export function twitchUrls(channel, hostname, options = {}, dark = false) {
   const chat = new URL(`https://www.twitch.tv/embed/${channel}/chat`);
   parents.forEach(parent => { player.searchParams.append('parent', parent); chat.searchParams.append('parent', parent); });
   if (dark) chat.searchParams.set('darkpopout', '');
-  return { player: player.href, chat: chat.href, channel: `https://www.twitch.tv/${channel}`, subscribe: `https://www.twitch.tv/subs/${channel}` };
+  return { player: player.href, chat: chat.href, channel: `https://www.twitch.tv/${channel}` };
 }

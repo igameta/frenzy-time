@@ -67,21 +67,21 @@ function renderDemoBanner() {
 
 function subscribeSection() {
   const used = config.floors.filter(floor => state.data.slots.some(slot => slot.floorId === floor.id));
-  return `<section class="subscribe" aria-label="開催前のTwitchサブスクライブ">${used.map(floor => {
+  return `<section class="subscribe" aria-labelledby="subscribe-title"><div class="subscribe-copy"><span class="subscribe-kicker">FOLLOW ON TWITCH</span><h2 id="subscribe-title">Twitchでフォロー</h2><p>${e(config.eventName)}の当日配信はTwitchで！</p></div><div class="subscribe-actions">${used.map(floor => {
     const urls = twitchUrls(floor.twitchChannel, location.hostname, config.twitch);
-    return `<div class="subscribe-item"><span class="muted">${e(floor.name)}</span>${urls ? `<a class="text-link" href="${e(urls.subscribe)}" target="_blank" rel="noopener noreferrer">Twitchでサブスクライブ ↗</a>` : '<span class="muted">Twitchチャンネルは後日公開</span>'}</div>`;
-  }).join('')}</section>`;
+    return `<div class="subscribe-item"><span class="subscribe-floor">${e(floor.name)}</span>${urls ? `<a class="subscribe-button" href="${e(urls.channel)}" target="_blank" rel="noopener noreferrer" aria-label="${e(floor.name)}のTwitchチャンネルを開いてフォローする（新しいタブ）"><span>フォローする</span><span aria-hidden="true">↗</span></a>` : '<span class="muted">Twitchチャンネルは後日公開</span>'}</div>`;
+  }).join('')}</div></section>`;
 }
 
 function overview(phase) {
   const slots = state.data.slots, days = eventDays(slots, zone);
-  return `<div class="meta"><span class="muted">${phase === 'before' ? '開催前' : phase === 'after' ? '全公演終了' : '全日程'} · 全日程・全フロア</span>${phase !== 'before' ? '<button type="button" class="picker" data-action="focus">日付・フロアを選んで見る</button>' : '<span class="muted">時刻はJST</span>'}</div><div class="all-days">${days.map((day, index) => {
+  return `<div class="meta"><span class="muted">${phase === 'before' ? '開催前' : phase === 'after' ? '全公演終了' : '全日程'} · 全日程・全フロア</span>${phase !== 'before' ? '<button type="button" class="picker" data-action="focus">日付・フロアを選んで見る</button>' : '<span class="muted">時刻はJST</span>'}</div>${phase === 'before' ? subscribeSection() : ''}<div class="all-days">${days.map((day, index) => {
     const floors = config.floors.filter(floor => slotsForDay(slots, day, floor.id, zone).length);
     return `<section><div class="day-header"><h2>DAY ${index + 1}</h2><p>${e(dayTitle(day))} · ${floors.length}フロア</p></div><div class="floors" data-count="${floors.length}" style="--floor-count:${floors.length}">${floors.map(floor => {
       const floorSlots = slotsForDay(slots, day, floor.id, zone);
       return `<section class="floor" aria-label="${e(`${dayTitle(day)} ${floor.name}`)}"><div class="floor-title"><h3>${e(floor.name)}</h3><span>${timeFormat.format(floorSlots[0].start)}–${timeFormat.format(floorSlots.at(-1).end)}</span></div><div class="cards">${floorSlots.map(slot => card(slot)).join('')}</div></section>`;
     }).join('')}</div></section>`;
-  }).join('')}</div>${phase === 'before' ? subscribeSection() : `<a class="text-link" href="${e(pageURL('./live.html', { floor: state.floor }))}">配信ページへ →</a>`}`;
+  }).join('')}</div>${phase !== 'before' ? `<a class="text-link" href="${e(pageURL('./live.html', { floor: state.floor }))}">配信ページへ →</a>` : ''}`;
 }
 
 function focusedSchedule(phase) {
@@ -93,8 +93,8 @@ function focusedSchedule(phase) {
   const featured = positions.current;
   const heading = phase === 'after' ? '全公演終了' : '開演後';
   const floor = floorById(state.floor);
-  return `<div class="focus-view"><div class="meta"><span class="muted">${heading} · 予定時刻に基づく表示</span><button type="button" class="picker" data-action="all">全日程を見る</button></div><div class="pickers" aria-label="開催日">${days.map((day, index) => picker(day, `DAY ${index + 1} · ${dayTitle(day)}`, state.day, 'day')).join('')}</div>${floors.length > 1 ? `<div class="pickers" aria-label="フロア">${floors.map(floor => picker(floor.id, floor.name, state.floor, 'floor')).join('')}</div>` : `<div class="one-floor">${e(floor.name)}</div>`}${featured ? `<section class="featured">${photo(state.data.djs.get(featured.djName))}<div class="card-copy"><span class="muted">予定上の現在の出演枠</span>${details(featured)}</div><a class="button-link" href="${e(pageURL('./live.html', { floor: state.floor }))}">このフロアの配信へ →</a></section>` : `<section class="empty-state"><p>${phase === 'after' || timestamp >= list.at(-1).end ? 'この日の公演は終了しました。' : timestamp < list[0].start ? 'この日の開演前です。' : '予定上は転換・休憩中です。'}</p><a class="text-link" href="${e(pageURL('./live.html', { floor: state.floor }))}">このフロアの配信へ →</a></section>`}<div class="timeline">${list.map(slot => {
-    const position = slot === positions.current ? ['予定上の現在', 'is-current'] : slot === positions.previous ? ['1つ前のDJ', 'is-previous'] : slot === positions.next ? ['次のDJ', ''] : ['', ''];
+  return `<div class="focus-view"><div class="meta"><span class="muted">${heading} · 予定時刻に基づく表示</span><button type="button" class="picker" data-action="all">全日程を見る</button></div><div class="pickers" aria-label="開催日">${days.map((day, index) => picker(day, `DAY ${index + 1} · ${dayTitle(day)}`, state.day, 'day')).join('')}</div>${floors.length > 1 ? `<div class="pickers" aria-label="フロア">${floors.map(floor => picker(floor.id, floor.name, state.floor, 'floor')).join('')}</div>` : `<div class="one-floor">${e(floor.name)}</div>`}${featured ? `<section class="featured">${photo(state.data.djs.get(featured.djName))}<div class="card-copy"><span class="muted">現在の出演枠</span>${details(featured)}</div><a class="button-link" href="${e(pageURL('./live.html', { floor: state.floor }))}">このフロアの配信へ →</a></section>` : `<section class="empty-state"><p>${phase === 'after' || timestamp >= list.at(-1).end ? 'この日の公演は終了しました。' : timestamp < list[0].start ? 'この日の開演前です。' : '予定上は転換・休憩中です。'}</p><a class="text-link" href="${e(pageURL('./live.html', { floor: state.floor }))}">このフロアの配信へ →</a></section>`}<div class="timeline">${list.map(slot => {
+    const position = slot === positions.current ? ['現在のDJ', 'is-current'] : slot === positions.previous ? ['1つ前のDJ', 'is-previous'] : slot === positions.next ? ['次のDJ', ''] : ['', ''];
     return card(slot, ...position);
   }).join('')}</div><p class="schedule-note">出演時刻は予定です。進行により前後します。実際の出演状況は配信でご確認ください。</p></div>`;
 }
@@ -108,9 +108,9 @@ function renderLineup() {
   const slots = state.data.slots, timestamp = now(), day = activeDay(slots, timestamp, zone);
   const list = slotsForDay(slots, day, state.floor, zone), positions = lineup(list, timestamp);
   const slotsHtml = [
-    ['previous', '1つ前のDJ', 'まだ前の出演枠はありません。'],
-    ['current', '予定上の現在', list.length ? timestamp >= list.at(-1).end ? '本日の公演は終了しました。' : timestamp < list[0].start ? '開演前です。' : '転換・休憩中です。' : 'このフロアの本日の公演はありません。'],
-    ['next', '次のDJ', '次の出演予定はありません。'],
+    ['previous', 'Prev DJ', 'まだ前の出演枠はありません。'],
+    ['current', 'Current DJ', list.length ? timestamp >= list.at(-1).end ? '本日の公演は終了しました。' : timestamp < list[0].start ? '開演前です。' : '転換・休憩中です。' : 'このフロアの本日の公演はありません。'],
+    ['next', 'Next DJ', '次の出演予定はありません。'],
   ].map(([position, label, empty]) => positions[position] ? card(positions[position], label, `is-${position}`) : `<article class="dj-card empty-slot"><span class="slot-label">${label}</span><p>${empty}</p></article>`).join('');
   document.getElementById('live-lineup').innerHTML = `<div class="lineup-heading"><h2>出演予定</h2><p>${e(dayTitle(day))} · ${e(floorById(state.floor).name)}</p></div><div class="lineup">${slotsHtml}</div><p class="schedule-note">予定時刻に基づく表示です。配信の実際の出演状況と異なる場合があります。</p>`;
 }
