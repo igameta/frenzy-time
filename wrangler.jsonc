@@ -1,0 +1,6 @@
+{
+    "name": "frenzy-time",
+    "assets": {
+        "directory": "./dist"
+    }
+}

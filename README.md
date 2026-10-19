@@ -48,7 +48,7 @@ data: {
 | `name` | ○ | 一意のDJネーム。前後の空白を除いて完全一致で照合 |
 | `genres` | ○ | ジャンル。`House / Disco` などの自由記述 |
 | `profile` | ○ | プロフィール本文。改行可能 |
-| `image_url` | | HTTPSの公開画像URL、またはサイト内の相対パス |
+| `image_url` | | HTTPSの公開画像URL、またはサイト内の相対パス。正方形を推奨（中央を基準に1:1で表示） |
 | `link_url` | | SNS・ホームページなどのURL |
 | `favorite_track_url` | | 推し曲の共有URL。列名 `推し曲` も使用可能 |
 

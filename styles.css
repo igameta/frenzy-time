@@ -62,7 +62,7 @@ main { padding: 28px 40px 40px; min-height: 45vh; }
 .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .floors[data-count='2'] .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .dj-card { position: relative; isolation: isolate; overflow: hidden; border-radius: var(--radius); background: var(--paper); min-width: 0; min-height: 145px; padding: 17px 20px; display: flex; flex-direction: column; }
-.card-photo { position: absolute; z-index: -1; right: 0; top: 0; width: 47%; height: 100%; object-fit: cover; object-position: 65% center; background: var(--wash); mask-image: linear-gradient(to right, transparent 0%, #000 72%); }
+.card-photo { position: absolute; z-index: -1; right: 0; top: 0; width: auto; height: 100%; max-width: none; aspect-ratio: 1; object-fit: cover; object-position: center; background: var(--wash); mask-image: linear-gradient(to right, transparent 0%, #000 72%); }
 .card-copy { width: 75%; min-width: 0; margin-top: auto; }
 .dj-details { display: grid; gap: 2px; }
 .genres { overflow-wrap: anywhere; }
@@ -115,12 +115,14 @@ dialog::backdrop { background: var(--veil); }
 .profile-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px; }
 .profile-header span { font-size: 12px; color: var(--muted); letter-spacing: .08em; }
 .close-profile { border: 1px solid var(--line); border-radius: var(--radius); width: 44px; height: 44px; background: transparent; font-size: 22px; }
-.profile-photo { width: 100%; max-height: 230px; aspect-ratio: 16/9; object-fit: cover; background: var(--wash); border-radius: var(--radius); }
+.profile-photo { display: block; width: min(100%, 280px); height: auto; aspect-ratio: 1; object-fit: cover; object-position: center; margin-inline: auto; background: var(--wash); border-radius: var(--radius); }
 .profile-name { font-size: 32px; line-height: 1.2; margin: 18px 0 6px; overflow-wrap: anywhere; }
 .profile-bio { white-space: pre-line; overflow-wrap: anywhere; font-size: 14px; margin: 20px 0; }
 .profile-song { border-top: 1px solid var(--line); margin-top: 22px; padding-top: 18px; }
 .profile-song h3, .profile-slots h3 { font-size: 14px; font-weight: 600; margin: 0 0 12px; }
-.profile-song iframe { width: 100%; border-radius: var(--radius); }
+.music-embed { overflow: hidden; isolation: isolate; border-radius: var(--radius); background: transparent; }
+.music-embed[data-provider='Spotify'] { border-radius: 12px; }
+.music-embed iframe { width: 100%; border-radius: inherit; background: transparent; color-scheme: normal; }
 .profile-slots { border-top: 1px solid var(--line); margin-top: 24px; padding-top: 18px; }
 .profile-slot { font-size: 12px; margin-bottom: 10px; }
 .profile-slot .slot-time { display: block; margin-top: 2px; }

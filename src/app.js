@@ -2,7 +2,7 @@ import config from '../config.js';
 import { createDataSource } from './data.js';
 import { activeDay, dateKey, eventDays, eventPhase, lineup, previewTime, slotsForDay } from './model.js';
 import { favoriteEmbed, imageUrl, safeUrl, twitchUrls } from './embeds.js';
-import { escapeHTML as e, renderIframe } from './view.js';
+import { escapeHTML as e, renderIframe, renderMusicEmbed } from './view.js';
 
 const page = document.body.dataset.page;
 const parameters = new URLSearchParams(location.search);
@@ -162,7 +162,7 @@ function openProfile(button) {
   state.lastFocus = button; state.openDJ = name;
   const track = favoriteEmbed(dj.favoriteTrackUrl), trackUrl = safeUrl(dj.favoriteTrackUrl), link = safeUrl(dj.linkUrl, location.href);
   const matching = state.data.slots.filter(slot => slot.djName === name);
-  document.getElementById('profile-panel').innerHTML = `<div class="profile-header"><span>DJ PROFILE</span><button type="button" class="close-profile" data-action="close-profile" aria-label="プロフィールを閉じる" autofocus>×</button></div>${photo(dj, 'profile-photo')}<h2 class="profile-name" id="profile-name">${e(dj.name)}</h2><div class="genres">${e(dj.genres)}</div><p class="profile-bio">${e(dj.profile)}</p>${link ? `<a class="text-link" href="${e(link.href)}" target="_blank" rel="noopener noreferrer">DJのリンク ↗</a>` : ''}${trackUrl ? `<section class="profile-song" aria-label="推し曲"><h3>推し曲</h3>${track ? renderIframe({ src: track.src, title: `${dj.name}の推し曲（${track.provider}）`, height: track.height, allow: 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture' }) : ''}<a class="text-link" href="${e(trackUrl.href)}" target="_blank" rel="noopener noreferrer">曲のページを開く ↗</a></section>` : ''}<section class="profile-slots"><h3>出演予定</h3>${matching.map(slot => `<p class="profile-slot">${e(dayTitle(dateKey(slot.start, zone)))} / ${e(floorById(slot.floorId).name)}${range(slot)}</p>`).join('')}</section>`;
+  document.getElementById('profile-panel').innerHTML = `<div class="profile-header"><span>DJ PROFILE</span><button type="button" class="close-profile" data-action="close-profile" aria-label="プロフィールを閉じる" autofocus>×</button></div>${photo(dj, 'profile-photo')}<h2 class="profile-name" id="profile-name">${e(dj.name)}</h2><div class="genres">${e(dj.genres)}</div><p class="profile-bio">${e(dj.profile)}</p>${link ? `<a class="text-link" href="${e(link.href)}" target="_blank" rel="noopener noreferrer">DJのリンク ↗</a>` : ''}${trackUrl ? `<section class="profile-song" aria-label="推し曲"><h3>推し曲</h3>${track ? renderMusicEmbed(track, dj.name) : ''}<a class="text-link" href="${e(trackUrl.href)}" target="_blank" rel="noopener noreferrer">曲のページを開く ↗</a></section>` : ''}<section class="profile-slots"><h3>出演予定</h3>${matching.map(slot => `<p class="profile-slot">${e(dayTitle(dateKey(slot.start, zone)))} / ${e(floorById(slot.floorId).name)}${range(slot)}</p>`).join('')}</section>`;
   dialog.showModal();
   dialog.querySelector('.close-profile').focus({ preventScroll: true });
 }
