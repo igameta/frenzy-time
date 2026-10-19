@@ -1,6 +1,6 @@
 {
     "name": "frenzy-time",
-    "compatibilitue_date": "2026-10-12",
+    "compatibility_date": "2026-10-12",
     "assets": {
         "directory": "./dist"
     }
