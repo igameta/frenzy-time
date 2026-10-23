@@ -4,16 +4,8 @@ export default {
   timeZone: 'Asia/Tokyo',
   showLogoBackdrop: true,
   floors: [
-<<<<<<< HEAD
     { id: 'floor-1', name: 'メインステージ 5405A教室', twitchChannel: 'frenzynet' },
-    { id: 'floor-2', name: '特別ステージ', twitchChannel: 'frenzynet2' },
-=======
-    { id: 'main', name: 'メインステージ 5405A教室', twitchChannel: 'frenzynet' },
-    { id: 'toku', name: '特設ステージ 武道場', twitchChannel: 'frenzynet2' },
-    { id: 'floor-1', name: 'testメインステージ', twitchChannel: 'frenzynet' },
-    { id: 'floor-2', name: 'test特設ステージ', twitchChannel: 'frenzynet2' },
->>>>>>> 59c6663dd54447e4120d252788d345df4dc4841d
-
+    { id: 'floor-2', name: '特別ステージ 武道場', twitchChannel: 'frenzynet2' },
   ],
   data: {
     // 接続時は useSampleData を false にし、「ウェブに公開」した各タブのCSV URLを指定。
