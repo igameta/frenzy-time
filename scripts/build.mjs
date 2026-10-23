@@ -1,6 +1,7 @@
-import { cp, lstat, mkdir, readdir, rm } from 'node:fs/promises';
+import { cp, lstat, mkdir, readdir, rm, writeFile } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import config from '../config.js';
 
 const root = resolve(fileURLToPath(new URL('../', import.meta.url)));
 const destination = resolve(root, 'dist');
@@ -16,4 +17,11 @@ for (const item of await readdir(destination)) {
 for (const entry of ['index.html', 'live.html', 'styles.css', 'config.js', 'src', 'data', 'assets']) {
   await cp(resolve(root, entry), resolve(destination, entry), { recursive: true });
 }
-console.log('静的サイトを dist/ に出力しました。');
+if (process.argv.includes('--cloudflare') && !config.data.useSampleData) {
+  // 元の設定は維持し、Cloudflareに配置するファイルだけ取得先を差し替える。
+  const workerConfig = { ...config, data: { ...config.data,
+    scheduleUrl: '/api/schedule.csv', djsUrl: '/api/djs.csv',
+  } };
+  await writeFile(resolve(destination, 'config.js'), `export default ${JSON.stringify(workerConfig, null, 2)};\n`);
+}
+console.log(`静的サイトを dist/ に出力しました。${process.argv.includes('--cloudflare') ? '（Cloudflare用）' : ''}`);
