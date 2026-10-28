@@ -23,6 +23,14 @@ export function imageUrl(value, base = 'https://example.invalid/') {
   return url.href;
 }
 
+function soundcloudPlayer(url) {
+  const player = new URL('https://w.soundcloud.com/player/');
+  player.searchParams.set('url', url.href);
+  player.searchParams.set('auto_play', 'false');
+  player.searchParams.set('visual', 'false');
+  return { provider: 'SoundCloud', src: player.href, height: 166 };
+}
+
 export function favoriteEmbed(value) {
   const url = safeUrl(value);
   if (!url || url.protocol !== 'https:') return null;
@@ -46,13 +54,35 @@ export function favoriteEmbed(value) {
   }
   if (['soundcloud.com', 'www.soundcloud.com'].includes(url.hostname)) {
     if (!/^\/[^/]+\/[^/]+/.test(url.pathname)) return null;
-    const player = new URL('https://w.soundcloud.com/player/');
-    player.searchParams.set('url', url.href);
-    player.searchParams.set('auto_play', 'false');
-    player.searchParams.set('visual', 'false');
-    return { provider: 'SoundCloud', src: player.href, height: 166 };
+    return soundcloudPlayer(url);
   }
   return null;
+}
+
+const soundcloudTracks = new Map();
+
+export async function resolveFavoriteEmbed(value, { fetch: request = globalThis.fetch, cache = soundcloudTracks } = {}) {
+  const existing = favoriteEmbed(value);
+  if (existing) return existing;
+  const url = safeUrl(value);
+  if (!url || url.origin !== 'https://on.soundcloud.com' || !/^\/[A-Za-z0-9_-]+\/?$/.test(url.pathname)) return null;
+  if (cache.has(url.href)) return cache.get(url.href);
+  const endpoint = new URL('https://soundcloud.com/oembed');
+  endpoint.search = new URLSearchParams({ format: 'json', url: url.href, maxheight: '166', auto_play: 'false' });
+  try {
+    const response = await request(endpoint.href, { credentials: 'omit', signal: AbortSignal.timeout(10_000) });
+    if (!response.ok) return null;
+    const data = await response.json();
+    // 外部HTMLは挿入せず、公式プレーヤー内の検証済みトラックURLのみ利用する。
+    const src = typeof data.html === 'string' && /<iframe\b[^>]*\ssrc=["']([^"']+)["']/i.exec(data.html)?.[1];
+    const player = safeUrl(src && src.replace(/&amp;/g, '&'));
+    if (!player || player.origin !== 'https://w.soundcloud.com' || player.pathname !== '/player/') return null;
+    const track = safeUrl(player.searchParams.get('url'));
+    if (!track || track.origin !== 'https://api.soundcloud.com' || !/^\/(?:tracks|playlists)\/\d+$/.test(track.pathname)) return null;
+    const result = soundcloudPlayer(track);
+    cache.set(url.href, result);
+    return result;
+  } catch { return null; } // 取得できない場合も元の曲ページへのリンクは維持する。
 }
 
 export function twitchUrls(channel, hostname, options = {}, dark = false) {

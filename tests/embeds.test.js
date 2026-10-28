@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { favoriteEmbed, safeUrl, imageUrl, twitchUrls } from '../src/embeds.js';
+import { favoriteEmbed, resolveFavoriteEmbed, safeUrl, imageUrl, twitchUrls } from '../src/embeds.js';
 import { escapeHTML, renderIframe } from '../src/view.js';
 
 test('Spotify共有URLを検証済みの埋め込みURLにする', () => {
@@ -13,6 +13,64 @@ test('SoundCloudを自動再生しない公式プレーヤーで開く', () => {
   assert.equal(new URL(result.src).hostname, 'w.soundcloud.com');
   assert.equal(new URL(result.src).searchParams.get('auto_play'), 'false');
   assert.equal(favoriteEmbed('https://on.soundcloud.com/example'), null);
+});
+
+const shortTrack = 'https://on.soundcloud.com/hKIv5TT04yPylcT05Q';
+const soundcloudHTML = '<iframe src="https://w.soundcloud.com/player/?visual=true&amp;url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F1450337839&amp;auto_play=true"></iframe>';
+
+test('SoundCloud短縮URLを公式oEmbedで解決し、再表示時は取得結果を再利用する', async () => {
+  const cache = new Map();
+  let calls = 0;
+  const fetch = async (value, options) => {
+    calls++;
+    const endpoint = new URL(value);
+    assert.equal(endpoint.origin + endpoint.pathname, 'https://soundcloud.com/oembed');
+    assert.equal(endpoint.searchParams.get('url'), shortTrack);
+    assert.equal(options.credentials, 'omit');
+    assert.ok(options.signal instanceof AbortSignal);
+    return Response.json({ html: soundcloudHTML });
+  };
+  const result = await resolveFavoriteEmbed(shortTrack, { fetch, cache });
+  const player = new URL(result.src);
+  assert.equal(result.provider, 'SoundCloud');
+  assert.equal(player.searchParams.get('url'), 'https://api.soundcloud.com/tracks/1450337839');
+  assert.equal(player.searchParams.get('auto_play'), 'false');
+  assert.equal(player.searchParams.get('visual'), 'false');
+  assert.deepEqual(await resolveFavoriteEmbed(shortTrack, { fetch, cache }), result);
+  assert.equal(calls, 1);
+});
+
+test('SoundCloud短縮URLの取得失敗はリンク表示に戻し、次回再取得できる', async () => {
+  const cache = new Map();
+  for (const fetch of [async () => { throw new Error('timeout'); }, async () => new Response('', { status: 429 }),
+    async () => new Response('not json')]) {
+    assert.equal(await resolveFavoriteEmbed(shortTrack, { fetch, cache }), null);
+    assert.equal(cache.size, 0);
+  }
+  assert.ok(await resolveFavoriteEmbed(shortTrack, { fetch: async () => Response.json({ html: soundcloudHTML }), cache }));
+});
+
+test('SoundCloud以外への取得や不正な埋め込み先、外部HTMLの挿入を許可しない', async () => {
+  const noFetch = async () => assert.fail('取得対象外');
+  for (const value of ['https://on.soundcloud.com.evil.example/id', 'http://on.soundcloud.com/id',
+    'https://user:pass@on.soundcloud.com/id', 'https://on.soundcloud.com/', 'https://on.soundcloud.com/id/extra',
+    'https://example.com/track']) {
+    assert.equal(await resolveFavoriteEmbed(value, { fetch: noFetch }), null);
+  }
+  assert.equal((await resolveFavoriteEmbed('https://soundcloud.com/forss/flickermood', { fetch: noFetch })).provider, 'SoundCloud');
+  for (const src of ['https://evil.example/player/?url=https://api.soundcloud.com/tracks/1',
+    'https://w.soundcloud.com/player/?url=https://evil.example/tracks/1',
+    'https://w.soundcloud.com/player/?url=https://api.soundcloud.com.evil.example/tracks/1',
+    'https://w.soundcloud.com/player/?url=http://api.soundcloud.com/tracks/1',
+    'https://w.soundcloud.com/player/?url=https://api.soundcloud.com/users/1', 'javascript:alert(1)']) {
+    assert.equal(await resolveFavoriteEmbed(shortTrack, {
+      fetch: async () => Response.json({ html: `<iframe src="${src}"></iframe>` }), cache: new Map(),
+    }), null, src);
+  }
+  const result = await resolveFavoriteEmbed(shortTrack, {
+    fetch: async () => Response.json({ html: `<script>alert(1)</script>${soundcloudHTML}` }), cache: new Map(),
+  });
+  assert.ok(!result.src.includes('script'));
 });
 
 test('YouTubeの共有・通常・Shorts・ライブ・埋め込みURLを公式プレーヤーに変換する', () => {

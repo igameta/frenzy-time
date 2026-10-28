@@ -2,7 +2,7 @@ import config from '../config.js';
 import { createDataSource } from './data.js';
 import { createAvatarCatalog } from './avatars.js';
 import { activeDay, dateKey, eventDays, eventPhase, lineup, previewTime, slotsForDay } from './model.js';
-import { favoriteEmbed, safeUrl, twitchUrls } from './embeds.js';
+import { favoriteEmbed, resolveFavoriteEmbed, safeUrl, twitchUrls } from './embeds.js';
 import { escapeHTML as e, renderArtistPhoto, renderIframe, renderMusicEmbed, renderProfileLinks } from './view.js';
 
 const page = document.body.dataset.page;
@@ -183,6 +183,13 @@ function renderProfile(name) {
   const members = context?.displayName === name ? slotDJs(context) : [];
   document.getElementById('profile-body').innerHTML = `${photo(dj, 'profile-photo', members)}<h2 class="profile-name" id="profile-name">${e(dj.name)}</h2><div class="genres">${e(dj.genres)}</div><p class="profile-bio">${e(dj.profile)}</p>${renderProfileLinks(dj.linkUrl, location.href)}${trackUrl ? `<section class="profile-song" aria-label="推し曲"><h3>推し曲</h3>${track ? renderMusicEmbed(track, dj.name) : ''}<a class="text-link" href="${e(trackUrl.href)}" target="_blank" rel="noopener noreferrer">曲のページを開く ↗</a></section>` : ''}<section class="profile-slots"><h3>出演予定</h3>${matching.map(slot => `<p class="profile-slot">${e(dayTitle(dateKey(slot.start, zone)))} / ${e(floorById(slot.floorId).name)}${range(slot)}${slot.displayName !== name ? `<span class="muted">${e(slot.displayName)}</span>` : ''}</p>`).join('')}</section>`;
   dialog.querySelectorAll('[data-action="profile-member"]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.value === name)));
+  if (trackUrl && !track) {
+    const song = document.getElementById('profile-body').querySelector('.profile-song');
+    resolveFavoriteEmbed(dj.favoriteTrackUrl).then(resolved => {
+      // 取得中に別のDJへ切り替えたり閉じたりした場合は古い表示を更新しない。
+      if (resolved && song.isConnected) song.querySelector('h3').insertAdjacentHTML('afterend', renderMusicEmbed(resolved, dj.name));
+    });
+  }
 }
 
 function openProfile(button) {

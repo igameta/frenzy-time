@@ -76,7 +76,7 @@ DJ名や名義に記号を含める場合、`dj_name` では `\(`・`\)`・`\,`�
 | `link_url` | | SNS・ホームページなどのURL。カンマ区切りで複数指定可能 |
 | `favorite_track_url` | | 推し曲の共有URL。列名 `推し曲` も使用可能 |
 
-プロフィールとジャンルは列自体が必須です。値は空欄にできます。推し曲はSpotify・SoundCloud・YouTubeの公式iframeに対応します。Spotifyの通常・`intl-ja`・埋め込みURLを受け付けます。SoundCloudは `https://soundcloud.com/ユーザー/曲名` の完全URLを使用してください。YouTubeは `youtube.com/watch?v=動画ID`・`youtu.be/動画ID`・Shorts・ライブ・埋め込みURLを受け付け、`youtube-nocookie.com` のプレーヤーで自動再生せずに表示します。動画IDのないプレイリストやその他の安全なHTTP(S) URLはリンクとして表示し、任意のHTMLは埋め込みません。元の曲ページへのリンクも残します。空欄の場合は推し曲欄を隠します。
+プロフィールとジャンルは列自体が必須です。値は空欄にできます。推し曲はSpotify・SoundCloud・YouTubeの公式iframeに対応します。Spotifyの通常・`intl-ja`・埋め込みURLを受け付けます。SoundCloudは `https://soundcloud.com/ユーザー/曲名` の完全URLと `https://on.soundcloud.com/…` の短縮URLに対応します。短縮URLはプロフィール表示時に公式oEmbed APIで解決し、成功した結果はページを開いている間再利用します。取得できない場合は元の曲ページへのリンクを表示します。YouTubeは `youtube.com/watch?v=動画ID`・`youtu.be/動画ID`・Shorts・ライブ・埋め込みURLを受け付け、`youtube-nocookie.com` のプレーヤーで自動再生せずに表示します。動画IDのないプレイリストやその他の安全なHTTP(S) URLはリンクとして表示し、任意のHTMLは埋め込みません。元の曲ページへのリンクも残します。空欄の場合は推し曲欄を隠します。
 
 `image_url`・`link_url`・`favorite_track_url` は、値の空欄だけでなく列自体も省略できます。画像なしの場合は自動生成アイコンを表示し、SNSリンク・推し曲なしの場合はそれぞれの項目を非表示にします。
 
