@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { favoriteEmbed, resolveFavoriteEmbed, safeUrl, imageUrl, twitchUrls } from '../src/embeds.js';
+import { favoriteEmbed, resolveFavoriteEmbed, safeUrl, imageUrl, twitchPlayerLayout, twitchUrls } from '../src/embeds.js';
 import { escapeHTML, renderIframe } from '../src/view.js';
 
 test('Spotify共有URLを検証済みの埋め込みURLにする', () => {
@@ -119,6 +119,20 @@ test('URLと表示文字列でスクリプト実行を防ぐ', () => {
   assert.equal(escapeHTML('<img src=x onerror="alert(1)">'), '&lt;img src=x onerror=&quot;alert(1)&quot;&gt;');
   assert.ok(!renderIframe({ src: 'https://example.com/?x=" onload="evil', title: '" onload="evil' }).includes(' onload="'));
 });
+test('狭い画面でもTwitchの操作部全体を表示幅に収め、iframe内の最小寸法を確保する', () => {
+  for (const available of [240, 278, 335, 350, 390, 399, 400, 401, 533, 720, 1080]) {
+    const layout = twitchPlayerLayout(available);
+    assert.ok(layout.width >= 400);
+    assert.ok(layout.height >= 300);
+    assert.equal(layout.width * layout.scale, available);
+    assert.equal(layout.visibleHeight, layout.height * layout.scale);
+    assert.equal(layout.scale, available < 400 ? available / 400 : 1);
+  }
+  assert.deepEqual(twitchPlayerLayout(320), { width: 400, height: 300, scale: 0.8, visibleHeight: 240 });
+  assert.deepEqual(twitchPlayerLayout(720), { width: 720, height: 405, scale: 1, visibleHeight: 405 });
+  for (const value of [0, -1, NaN, Infinity, undefined]) assert.equal(twitchPlayerLayout(value), null);
+});
+
 test('Twitch映像・コメントに同一のparentと選択チャンネルを設定する', () => {
   const result = twitchUrls('example_channel', 'festival.example', { additionalParents: ['container.example', 'festival.example'], autoplay: false }, true);
   for (const key of ['player', 'chat']) assert.deepEqual(new URL(result[key]).searchParams.getAll('parent'), ['festival.example', 'container.example']);

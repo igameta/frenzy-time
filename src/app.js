@@ -2,7 +2,7 @@ import config from '../config.js';
 import { createDataSource } from './data.js';
 import { createAvatarCatalog } from './avatars.js';
 import { activeDay, dateKey, eventDays, eventPhase, lineup, previewTime, slotsForDay } from './model.js';
-import { favoriteEmbed, resolveFavoriteEmbed, safeUrl, twitchUrls } from './embeds.js';
+import { favoriteEmbed, resolveFavoriteEmbed, safeUrl, twitchPlayerLayout, twitchUrls } from './embeds.js';
 import { escapeHTML as e, renderArtistPhoto, renderIframe, renderMusicEmbed, renderProfileLinks } from './view.js';
 
 const page = document.body.dataset.page;
@@ -137,19 +137,24 @@ function mountMedia() {
   if (!floor) return;
   const video = document.getElementById('video-area'), chat = document.getElementById('chat-area');
   const urls = twitchUrls(floor.twitchChannel, location.hostname, config.twitch, darkScheme.matches);
-  const narrow = video.clientWidth < 400;
-  const key = JSON.stringify([floor.id, urls?.player, narrow]);
+  const key = JSON.stringify([floor.id, urls?.player]);
   if (state.mediaKey !== key) {
     state.mediaKey = key;
-    video.classList.toggle('has-embed', Boolean(urls && !narrow));
+    video.classList.toggle('has-embed', Boolean(urls));
     video.innerHTML = !urls
       ? `<p>${e(floor.name)}の配信準備中</p><p class="muted">配信先は開催前にご案内します。</p>`
-      : narrow
-        ? `<p>${e(floor.name)}の配信</p><p class="muted">横向きにするか、Twitchで視聴できます。</p><a class="button-link" href="${e(urls.channel)}" target="_blank" rel="noopener noreferrer">Twitchで配信を開く ↗</a>`
-        : renderIframe({ src: urls.player, title: `${floor.name}のTwitch配信`, allow: 'autoplay; fullscreen; picture-in-picture', lazy: false });
+      : `<div class="twitch-player">${renderIframe({ src: urls.player, title: `${floor.name}のTwitch配信`, allow: 'autoplay; fullscreen; picture-in-picture', lazy: false })}</div>`;
     chat.innerHTML = urls ? renderIframe({ src: urls.chat, title: `${floor.name}のTwitchコメント`, lazy: false }) : '<p>配信の開始までお待ちください。</p>';
   } else if (urls && chat.querySelector('iframe')?.src !== urls.chat) {
     chat.querySelector('iframe').src = urls.chat;
+  }
+  const layout = urls && twitchPlayerLayout(video.clientWidth);
+  if (layout) {
+    // iframe内は最小400×300を確保し、操作部も含めて表示幅に合わせる。
+    video.style.setProperty('--player-width', `${layout.width}px`);
+    video.style.setProperty('--player-height', `${layout.height}px`);
+    video.style.setProperty('--player-scale', layout.scale);
+    video.style.setProperty('--player-visible-height', `${layout.visibleHeight}px`);
   }
 }
 
@@ -300,6 +305,12 @@ document.addEventListener('visibilitychange', () => {
   }
 });
 if (page === 'live') {
-  new ResizeObserver(() => mountMedia()).observe(document.getElementById('video-area'));
+  let videoWidth = -1;
+  new ResizeObserver(([entry]) => {
+    if (entry.contentRect.width === videoWidth) return;
+    videoWidth = entry.contentRect.width;
+    // 高さの更新で監視処理が循環しないよう、幅の変化だけ次の描画で反映する。
+    requestAnimationFrame(mountMedia);
+  }).observe(document.getElementById('video-area'));
   darkScheme.addEventListener('change', mountMedia);
 }

@@ -14,7 +14,7 @@ for (const item of await readdir(destination)) {
   if (relative(destination, target).startsWith('..')) throw new Error('Invalid cleanup path');
   await rm(target, { recursive: true, force: true });
 }
-for (const entry of ['index.html', 'live.html', 'styles.css', 'config.js', 'src', 'data', 'assets']) {
+for (const entry of ['index.html', 'live.html', 'now-playing.html', 'styles.css', 'now-playing.css', 'config.js', 'src', 'data', 'assets']) {
   await cp(resolve(root, entry), resolve(destination, entry), { recursive: true });
 }
 if (process.argv.includes('--cloudflare') && !config.data.useSampleData) {

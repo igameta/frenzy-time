@@ -1,0 +1,30 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&display=swap');
+
+:root { color-scheme: dark; font: 400 18px/1.4 system-ui, -apple-system, 'Segoe UI', 'Noto Sans JP', sans-serif; color: #eeeeeb; background: transparent; }
+* { box-sizing: border-box; }
+html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; }
+body { pointer-events: none; }
+#now-playing { position: absolute; left: clamp(16px, 3.33vw, 64px); right: clamp(16px, 3.33vw, 64px); bottom: clamp(16px, 5.93vh, 64px); }
+.now-card { position: relative; display: flex; align-items: center; gap: 24px; max-width: 920px; padding: 24px; border: 1px solid #53617a; border-left: 6px solid #2d56a0; border-radius: 2px; background: #111214ed; }
+.now-copy { flex: 1; min-width: 0; }
+.now-context { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 0 0 8px; color: #b6b6b5; font-size: 14px; }
+.now-label { margin: 0 0 4px; color: #9db9ee; font: 600 20px/1.1 'Barlow Condensed', 'Arial Narrow', sans-serif; letter-spacing: .12em; }
+.now-name { margin: 0; font: 700 clamp(28px, 3.3vw, 56px)/1.12 'Barlow Condensed', system-ui, sans-serif; overflow-wrap: anywhere; }
+.now-time { display: block; margin-top: 2px; font: 600 30px/1.2 'Barlow Condensed', 'Arial Narrow', sans-serif; }
+.now-genres { margin: 8px 0 0; color: #b6b6b5; font-size: 16px; overflow-wrap: anywhere; }
+.now-photo { flex: 0 0 144px; width: 144px; height: 144px; border-radius: 2px; background: #18263e; }
+.artist-photo { position: relative; display: block; overflow: hidden; }
+.artist-photo > img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+.avatar-brand { display: none; position: absolute; right: 6%; bottom: 6%; width: 18%; max-width: 28px; aspect-ratio: 200.8111 / 152.8375; background: #b6b6b5; opacity: .65; mask: url('./assets/frenzy-symbol.svg') center / contain no-repeat; }
+.artist-photo.is-generated > .avatar-brand { display: block; }
+.artist-collage { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: repeat(var(--photo-rows), minmax(0, 1fr)); overflow: hidden; }
+.artist-collage > .artist-photo { width: 100%; height: 100%; min-width: 0; min-height: 0; }
+.artist-collage[data-odd='true'] > .artist-photo:last-child { grid-column: span 2; }
+@media (max-width: 600px) {
+  .now-card { gap: 14px; padding: 16px; }
+  .now-photo { flex-basis: 80px; width: 80px; height: 80px; }
+  .now-context { font-size: 12px; }
+  .now-label { font-size: 16px; }
+  .now-time { font-size: 24px; }
+  .now-genres { font-size: 13px; }
+}

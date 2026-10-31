@@ -140,9 +140,10 @@ main { padding: 28px 40px 40px; min-height: 45vh; }
 .schedule-note { font-size: 12px; color: var(--muted); margin-top: 18px; }
 .stream-grid { display: grid; grid-template-columns: minmax(400px, 1fr) 300px; gap: 16px; margin-top: 20px; }
 .video-area { width: 100%; min-width: 0; min-height: 300px; aspect-ratio: 16/9; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 22px; gap: 10px; }
-.video-area.has-embed { padding: 0; display: block; }
+.video-area.has-embed { padding: 0; display: block; min-height: 0; aspect-ratio: auto; overflow: hidden; }
 .video-area p { margin: 0; }
-.video-area iframe { width: 100%; height: 100%; min-height: 300px; }
+.twitch-player { position: relative; width: 100%; height: var(--player-visible-height, 300px); overflow: hidden; background: #000; }
+.twitch-player iframe { width: var(--player-width, 400px); height: var(--player-height, 300px); transform: scale(var(--player-scale, 1)); transform-origin: top left; }
 iframe { border: 0; display: block; }
 .chat-area { min-width: 0; min-height: 300px; background: var(--paper); border: 1px solid var(--line); border-radius: var(--radius); display: grid; place-items: center; text-align: center; }
 .chat-area > p { padding: 20px; margin: 0; color: var(--muted); font-size: 12px; }

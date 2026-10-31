@@ -85,6 +85,13 @@ export async function resolveFavoriteEmbed(value, { fetch: request = globalThis.
   } catch { return null; } // 取得できない場合も元の曲ページへのリンクは維持する。
 }
 
+export function twitchPlayerLayout(availableWidth) {
+  if (!Number.isFinite(availableWidth) || availableWidth <= 0) return null;
+  const width = Math.max(400, availableWidth), height = Math.max(300, width * 9 / 16);
+  const scale = Math.min(1, availableWidth / width);
+  return { width, height, scale, visibleHeight: height * scale };
+}
+
 export function twitchUrls(channel, hostname, options = {}, dark = false) {
   if (!/^[a-zA-Z0-9_]{1,25}$/.test(channel || '') || !hostname) return null;
   const parents = [...new Set([hostname, ...(options.additionalParents || [])])];
